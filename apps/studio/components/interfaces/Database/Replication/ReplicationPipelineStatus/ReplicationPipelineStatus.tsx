@@ -124,7 +124,8 @@ export const ReplicationPipelineStatus = () => {
     pipelineId,
   })
 
-  const { data: pipelineStatusData } = useReplicationPipelineStatusQuery(
+  const { data: pipelineStatusData, isPending: isPipelineStatusLoading } =
+    useReplicationPipelineStatusQuery(
     { projectRef, pipelineId },
     {
       enabled: !!pipelineId,
@@ -176,6 +177,7 @@ export const ReplicationPipelineStatus = () => {
 
   const hasErroredTables = erroredTables.length > 0
   const isAnyRestartInProgress = restartingTableIds.size > 0
+  const isLoading = isPipelineLoading || isPipelineStatusLoading || isStatusLoading
 
   const hasTableData = tableStatuses.length > 0
   const isPipelineActionable =
@@ -204,7 +206,7 @@ export const ReplicationPipelineStatus = () => {
     <>
       <PageContainer size="large">
         <p className="sr-only" role="status" aria-live="polite">
-          {isPipelineLoading || isStatusLoading ? 'Loading pipeline details' : ''}
+          {isLoading ? 'Loading pipeline details' : ''}
         </p>
 
         {isPipelineError && (
@@ -215,9 +217,9 @@ export const ReplicationPipelineStatus = () => {
           </PageSection>
         )}
 
-        {(isPipelineLoading || isStatusLoading) && <PipelineOverviewSkeleton />}
+        {isLoading && <PipelineOverviewSkeleton />}
 
-        {!isPipelineLoading && !isStatusLoading && (
+        {!isLoading && (
           <PageSection>
             <PageSectionMeta>
               <PageSectionSummary>
@@ -308,7 +310,7 @@ export const ReplicationPipelineStatus = () => {
           </PageSection>
         )}
 
-        {!isPipelineLoading && !isStatusLoading && (
+        {!isLoading && !(isStatusError && !hasTableData) && (
           <PageSection>
             <PageSectionMeta>
               <PageSectionSummary>
